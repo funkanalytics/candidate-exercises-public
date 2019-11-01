@@ -1,0 +1,35 @@
+spring:
+  kafka:
+    bootstrap-servers:
+      - localhost:9092
+    properties:
+      schema.registry.url: http://localhost:8081
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    consumer:
+      group-id: group_id
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+  jackson.serialization.write-dates-as-timestamps: false
+  messages.basename: messages
+  management.endpoints.web.exposure.include:
+    - "*"
+  jpa:
+    properties:
+      hibernate.jdbc.lob.non_contextual_creation: true
+    show-sql: true
+    hibernate.ddl-auto: 'update'
+    database-platform: org.hibernate.dialect.PostgresPlusDialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/postgres
+    username: postgresuser
+    password: postgrespw
+  rsocket.server.port: 7000
+logging.level.org.springframework: info
