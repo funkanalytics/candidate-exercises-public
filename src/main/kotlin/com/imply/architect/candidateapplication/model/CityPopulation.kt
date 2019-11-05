@@ -6,12 +6,12 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 class PopulationId(
-        val Name: String = "",
-        val CountryCode: String = "") : Serializable
+        val name: String = "",
+        val countryCode: String = "") : Serializable
 
-@Entity(name = "populations")
+@Entity(name = "population")
 @IdClass(PopulationId::class)
 data class CityPopulation(
-        @Id val Name : String = "",
-        @Id val CountryCode : String = "",
-        @get: NotNull val Population: Long = 0){}
+        @Id @get: NotNull val name : String = "",
+        @Id @get: NotNull val countryCode : String = "",
+        @get: NotNull val population: Long = 0)
