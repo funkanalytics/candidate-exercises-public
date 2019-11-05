@@ -31,5 +31,7 @@ spring:
     url: jdbc:postgresql://127.0.0.1:5432/postgres
     username: postgresuser
     password: postgrespw
-  rsocket.server.port: 7000
-logging.level.org.springframework: info
+  rsocket:
+    server.port: 7000
+    server.mapping-path: ".\\src\\main\\resources\\DataSets\\test"
+datasets.populations: ".\\src\\main\\resources\\DataSets"
