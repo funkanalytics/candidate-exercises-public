@@ -12,6 +12,7 @@ import java.nio.file.Files
 import java.nio.file.StandardWatchEventKinds.*
 
 /**
+ * Reference: https://proandroiddev.com/kotlin-watchservice-a-better-file-watcher-using-channels-coroutines-and-sealed-classes-7ab5c9df3ada
  * Watches directory. If file is supplied it will use parent directory. If it's an intent to watch just file,
  * developers must filter for the file related events themselves. 
  *
