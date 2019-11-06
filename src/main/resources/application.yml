@@ -4,9 +4,6 @@ spring:
       - localhost:9092
     properties:
       schema.registry.url: http://localhost:8081
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
     consumer:
       group-id: group_id
       auto-offset-reset: earliest
@@ -31,8 +28,4 @@ spring:
     url: jdbc:postgresql://127.0.0.1:5432/postgres
     username: postgresuser
     password: postgrespw
-  rsocket:
-    server.port: 7000
-    server.mapping-path: ".\\src\\main\\resources\\DataSets\\test"
-dataset.location: ".\\src\\main\\resources\\DataSets\\test"
-dataset.types: "csv,json,avro"
+dataset.location: ".\\src\\main\\resources\\DataSets"

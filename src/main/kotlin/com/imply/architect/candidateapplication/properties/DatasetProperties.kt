@@ -7,7 +7,4 @@ import org.springframework.stereotype.Component
 class DatasetProperties {
     @Value("\${dataset.location}")
     lateinit var location: String
-
-    @Value("\${dataset.types}")
-    lateinit var types: String
 }
