@@ -9,6 +9,7 @@ import com.imply.architect.candidateapplication.repository.CityPopulationReposit
 import com.imply.avro.city.Population
 import com.opencsv.CSVReader
 import dev.vishna.watchservice.asWatchChannel
+import io.swagger.annotations.*
 import kotlinx.coroutines.channels.consumeEach
 
 import kotlinx.coroutines.launch
@@ -24,7 +25,6 @@ import java.io.BufferedReader
 import java.io.FileReader
 import java.io.IOException
 
-
 @RestController
 @RequestMapping("/api")
 class CityPopulationController(@Autowired private val cityPopulationRepository : CityPopulationRepository) {
@@ -36,6 +36,7 @@ class CityPopulationController(@Autowired private val cityPopulationRepository :
     @GetMapping("/populations")
     fun getAllPopulations() : List<CityPopulation> = cityPopulationRepository.findAll().sortedBy { it.Name }
 
+    @ApiResponses()
     //create or update a population entry
     @PostMapping("/populations")
     fun createPopulation(@Valid @RequestBody population: CityPopulation) : CityPopulation = cityPopulationRepository.save(population)
@@ -48,6 +49,7 @@ class CityPopulationController(@Autowired private val cityPopulationRepository :
     fun listDatasetsInDirectory() = File( ".\\src\\main\\resources\\DataSets").walk().forEach {
        if (it.isFile) logger.info(it.name) }
 
+    // TODO fix response body for start watcher, likely integrate with RSocket/webflux
     @Suppress("IMPLICIT_CAST_TO_ANY")
     @kotlinx.coroutines.ExperimentalCoroutinesApi
     @PostMapping(value = ["/datasets"], params = ["startWatch"])
@@ -57,17 +59,19 @@ class CityPopulationController(@Autowired private val cityPopulationRepository :
             val currentDirectory  = File(this@CityPopulationController.properties.location)
             val watchChannel = currentDirectory.asWatchChannel()
 
-            if (startWatch)  launch {
+            if (startWatch) launch {
                 watchChannel.consumeEach { event ->
 
-                    if (event.kind.toString().toLowerCase() == "initialized")
+                    if (event.kind.toString().toLowerCase() == "initialized") {
                         event.file.listFiles()?.forEach { file -> fileSelector(file) }
-
+                    }
                     if (event.kind.toString().toLowerCase() ==  "modified") {
                         fileSelector(event.file)
                     }
                 }
-            } else watchChannel.close()
+
+            }
+            if (!startWatch) watchChannel.close()
         }
     }
 
