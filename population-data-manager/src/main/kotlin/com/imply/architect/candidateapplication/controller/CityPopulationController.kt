@@ -39,15 +39,23 @@ class CityPopulationController(@Autowired private val cityPopulationRepository :
     @ApiResponses()
     //create or update a population entry
     @PostMapping("/populations")
-    fun createPopulation(@Valid @RequestBody population: CityPopulation) : CityPopulation = cityPopulationRepository.save(population)
+    fun createOrUpdatePopulation(@Valid @RequestBody population: CityPopulation) : CityPopulation = cityPopulationRepository.save(population)
 
     // deletes a Population
     @DeleteMapping("/populations")
     fun deleteCityPopulation(@Valid @RequestBody population: CityPopulation) : Unit = cityPopulationRepository.delete(population)
 
     @GetMapping("/datasets")
-    fun listDatasetsInDirectory() = File( ".\\src\\main\\resources\\DataSets").walk().forEach {
-       if (it.isFile) logger.info(it.name) }
+    fun listDatasetsInDirectory() = run {
+        var fileList: String = ""
+        File(".\\src\\main\\resources\\DataSets").walk().forEach {
+            if (it.isFile) {
+                fileList += it.name + "\n"
+                logger.debug(it.name)
+            }
+        }
+        fileList
+    }
 
     // TODO fix response body for start watcher, likely integrate with RSocket/webflux
     @Suppress("IMPLICIT_CAST_TO_ANY")
@@ -97,7 +105,7 @@ class CityPopulationController(@Autowired private val cityPopulationRepository :
 
             record = csvReader.readNext()
             while (record != null) {
-                createPopulation(CityPopulation(record[0], record[1], record[2].toLong()))
+                createOrUpdatePopulation(CityPopulation(record[0], record[1], record[2].toLong()))
                 record = csvReader.readNext()
             }
 
@@ -135,8 +143,9 @@ class CityPopulationController(@Autowired private val cityPopulationRepository :
         while (dataFileReader.hasNext()) {
             val population = Population.newBuilder(dataFileReader.next())
             if (population.hasName() && population.hasCountryCode()) {
-                createPopulation(CityPopulation(population.name, population.countryCode, population.population))
+                createOrUpdatePopulation(CityPopulation(population.name, population.countryCode, population.population))
             }
         }
     }
 }
+
