@@ -1,4 +1,4 @@
-package com.imply.architect.candidateapplication.model
+package com.funkanalytics.populations.data.manager.model
 
 import java.io.Serializable
 import javax.persistence.*

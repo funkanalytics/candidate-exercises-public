@@ -1,4 +1,4 @@
-package com.imply.architect.candidateapplication
+package com.funkanalytics.populations.data.manager
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

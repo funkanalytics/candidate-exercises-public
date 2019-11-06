@@ -1,4 +1,4 @@
-package com.imply.architect.candidateapplication
+package com.funkanalytics.populations.data.manager
 
 import org.junit.Test
 import org.springframework.boot.test.context.SpringBootTest

@@ -1,12 +1,12 @@
-package com.imply.architect.candidateapplication.controller
+package com.funkanalytics.populations.data.manager.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.imply.architect.candidateapplication.model.CityPopulation
-import com.imply.architect.candidateapplication.properties.DatasetProperties
-import com.imply.architect.candidateapplication.repository.CityPopulationRepository
-import com.imply.avro.city.Population
+import com.funkanalytics.populations.data.manager.model.CityPopulation
+import com.funkanalytics.populations.data.manager.properties.DatasetProperties
+import com.funkanalytics.populations.data.manager.repository.CityPopulationRepository
+import com.funkanalytics.avro.city.Population
 import com.opencsv.CSVReader
 import dev.vishna.watchservice.asWatchChannel
 import io.swagger.annotations.*
