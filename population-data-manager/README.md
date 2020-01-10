@@ -1,106 +1,113 @@
-<h1>Applicant Guide</h1>
+<h1>City Population Data Manager</h1>
 
-<h2>Part A: Coding Excerise </h2>
+Dependencies:
+* Docker
+* Postgresql
+* Maven
+* Java 8
+
+This application provides an example of how to integrate multiple data formats of city population data and manage the flow of data.
+Data is automatically ingested from json, avro, and csv files that adhere to the City Population data schema below.
 
 There are three source files. **CityListA.json**, **CityListB.avro**, and **CityListC.csv**.
-They each contain data in three columns:
+They each contain data in three columns (the data schema):
 
   * name:string
   * code:string
   * Population:long
 
-The goal is to combine the files, eliminating any duplicates and write to a single .CSV file sorted alphabetically by the city name. You can use any technology that you prefer.  The desired solution should be as generic, repeatable, and as automated as possible.  Once the dataset is completed, answer the following questions (and provide an explanation of how you determined your answer with any applicable code):
-  1) What is the count of all rows?
-  2) What is the city with the largest population?
-  3) What is the total population of all cities in Brazil (CountryCode == BRA)?
-  4) What changes could be made to improve your program's performance.
-  5) How would you scale your solution to a much larger dataset (too large for a single machine to store)?
+All ingested data is standardized to the avro serialization format.
 
-Your deliverable should be the following:
+* This enables schema evolution, which ensures that changes to the schema do not break the flow of data to dependencies.
 
-  * Your code to generate the dataset
-  * A runbook with a guide on using your program
-  * The dataset generated
-  * Answers to the previous questions
+* A JDBC database instance is required to run this application, which is currently configured to use PostgreSQL
+* If [Docker](https://www.docker.com/get-started) is installed, a postgresql instance can be started with:
+```$xslt
+docker run --name some-postgres -e POSTGRES_PASSWORD=postgrespw -d postgres
+```
 
-<h1>Part B: Case Study</h1>
-In this exercise we will provide you with a set of customer requirements for Koala Maximization, Ltd. ("Koala" for short), the company that operates the popular web property http://koalastothemax.com/. Your goal will be to suggest how they can deploy Imply to best meet their needs.
-
-<h2>Customer requirements</h2>
-Koala has a dataset composed of visits to their web site, annotated with session ID, path visited, and attributes about the visitor like "city" and "browser". They want to build dashboards based on this dataset as well as be able to explore this dataset interactively.
-
-An example data point for a single hit is below:
+Point the application to the jdbc instance by updating: 
+ [application.yml](src/main/resources/application.yml):
 
 ```
-{
-  "timestamp": "2016-08-04T18:05:07.054Z",
-  "session": "S74650219",
-  "remote_address": "172.31.3.170",
-  "path": "http://www.koalastothemax.com/img/koalas3.jpg",
-  "referrer": "Direct",
-  "timezone_offset": "-120",
-  "language": "it-IT",
-  "city": "Borgo San Lorenzo",
-  "region": "Province of Florence",
-  "country": "Italy",
-  "continent": "Europe",
-  "latitude": 43.9555,
-  "longitude": 11.3856,
-  "browser": "Mozilla",
-  "browser_version": "rv:11.0",
-  "agent_type": "Browser",
-  "agent_category": "Personal computer",
-  "os": "Windows",
-  "platform": "Windows"
-}
+  ...
+  datasource:
+       driver-class-name: org.postgresql.Driver
+       url: jdbc:postgresql://localhost:5432/postgres
+       username: postgresuser
+       password: postgrespw
 ```
-This hit is part of the session "S74650219". The Koalas To The Max site gets roughly 200 million hits per day. Koala wants to load data in real-time and additionally store one year of historical data.
 
-The most important kind of analysis Koala needs to do is counting how many unique sessions match certain parameters. For example, they need to answer queries like:
+Build and start the application:
+```
+mvn clean package
+java -jar target/population-data-manager-1.0-SNAPSHOT.jar
+```
 
-  * How many unique sessions were there last month?
-  * How many unique sessions are there per day in each country?
-  * Koala has one type of hardware available in its datacenter, with the following specs:
+# Walkthrough: Example Usage
 
-2x 8-core HT processors (16 cores total, 32 hardware threads)
-64GB memory
-600GB SSD disk
+**Navigate to Populations Manager REST API front-end:**
+ http://localhost:8090
 
-<h2>Your recommendation</h2>
-Your challenge is to write a recommendation for Koala hitting the following points:
+![alt_text](src/main/resources/media/swagger_ui_populations_manager_00.PNG)
 
-  * How many servers will be necessary for an analytics cluster for one year of this dataset
-  * How these servers should be configured (JVM config, Druid runtime.properties)
-  * How Imply can be used to answer the two sample queries provided by Koala (number of unique sessions in a particular month; number of unique sessions per country in a particular day).
+...
 
-Some aspects of your recommendation will need to be based on guesswork. This is totally normal, even for a real customer engagement! Whenever you are guessing, please point out what assumptions you made, and what additional information you would need in order to refine your guess.
+**Select "city-population-controller" to drop down the REST API to control the population data:**
 
-<h2>Evaluation</h2>
+![alt_text](src/main/resources/media/swagger_city-population-controller_01.PNG)
 
-Like the coding challenge, it is much more important to have a reasonable recommendation for each point that to have the best possible recommendation. We are not looking for perfection. Rather, we are looking for a good starting point that could be improved with more research.
+...
 
-Please include some details about how you arrived at the conclusions in your recommendation. This is even more important to us than the actual recommendations.
+**List all data sets in ingestion watch directory.**
 
-**Suggested resources**
+**When the watcher is enabled, data sets in the directory, as well as 
+new data sets of types *avro*, *json*, *csv* dropped into this directory, are automatically persisted**
+**(Data sets require strict adherence to City Population data schema):**
 
-You may find these resources helpful when putting together your recommendation:
+![alt_text](src/main/resources/media/swagger_list_datasets_02.PNG)
 
-**Imply documentation**:
+...
 
-Platform documentation at https://docs.imply.io/
+**Query all populations prior to turning the directory watcher on. This should be empty:**
 
-Quickstart at https://docs.imply.io/on-prem/quickstart
+![alt_text](src/main/resources/media/swagger_get_populations_beforeLoad_empty_03.PNG)
 
-Clustering documentation at https://docs.imply.io/on-prem/deploy/cluster
+...
 
-Sample configurations, available in the package at https://imply.io/get-started
+**Turn on the Directory Watcher to automatically persist data to the database.**
+* HTTP Response needs to be updated -- THIS CALL HANGS, SO CANCEL REST request afterward!
+* The watcher will remain enabled even after canceling the REST call
+![alt_text](src/main/resources/media/swagger_start_data_directory_watcher_04.PNG)
 
-**Druid documentation**:
+...
 
-Common configuration reference at http://druid.io/docs/latest/configuration/index.html
+**Query all populations after enabling watcher:**
+![alt_text](src/main/resources/media/swagger_loaded_populations_05.PNG)
 
-Broker configuration reference at http://druid.io/docs/latest/configuration/broker.html
+...
 
-Historical configuration reference at http://druid.io/docs/latest/configuration/historical.html
+**Create or update a population in the database:**
+![alt_text](src/main/resources/media/swagger_update_population_0_06.PNG)
 
-Indexing service configuration reference at http://druid.io/docs/latest/configuration/indexing-service.html
+**Response after population update:**
+![alt_text](src/main/resources/media/swagger_update_population_1_07.PNG)
+
+...
+
+**Query all data to verify update and validate no duplicate records.**
+**Duplicate records do not exist, as the database ID is the serialized combination of values for "name"+"countryCode":**
+![alt_text](src/main/resources/media/swagger_get_populations_after_update_08.PNG)
+
+...
+
+**Delete a population record:**
+![alt_text](src/main/resources/media/swagger_delete_population_09.PNG)
+
+**Response after population delete:**
+![alt_text](src/main/resources/media/swagger_delete_population_response_10.PNG)
+
+...
+
+**Query all data to verify population was deleted:**
+![alt_text](src/main/resources/media/swagger_get_populations_after_delete_11.PNG)

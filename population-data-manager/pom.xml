@@ -36,7 +36,7 @@
 		<avro.version>1.8.2</avro.version>
 		<h2.version>1.4.199</h2.version>
 		<psql.version>42.2.6</psql.version>
-		<springfox.version>3.0.0-SNAPSHOT</springfox.version>
+		<springfox.version>2.9.2</springfox.version>
 	</properties>
 
 	<dependencies>

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8090
 spring:
   management.endpoints.web.exposure.include:
     - "*"
@@ -15,7 +15,7 @@ spring:
       path: /h2-console
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://127.0.0.1:5432/postgres
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgresuser
     password: postgrespw
 dataset.location: ".\\src\\main\\resources\\DataSets"
